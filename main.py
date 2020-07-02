@@ -1,21 +1,3 @@
-'''
-initialorder=1 <what is this?
-team1=USG (Egyptian Team) 
-team2=La Cucaracha 
-team1score=0 
-team2score=1 <this could be more than one if it was a best of five?
-winner=2 
-date=2020-05-29
-time=20:00 
-timezone=CET <will look at later
-dst=yes <what's this? daylight savings time?
-stream= <obviously can be NULL because we won't have any
-
-https://www.toornament.com/en_GB/tournaments/3543821601845821440/matches/3603290114354332214/ --- Completed 
-https://www.toornament.com/en_GB/tournaments/3543821601845821440/matches/3603290114320777496/ --- Not completed yet
-https://www.toornament.com/en_GB/tournaments/3543821601845821440/matches/3603290114387887185/ --- Forfeit
-'''
-
 import requests
 from bs4 import BeautifulSoup
 import pprint

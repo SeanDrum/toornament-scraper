@@ -11,8 +11,9 @@ timezone=CET <will look at later
 dst=yes <what's this? daylight savings time?
 stream= <obviously can be NULL because we won't have any
 
-https://www.toornament.com/en_GB/tournaments/3543821601845821440/matches/3603290114354332214/
-https://www.toornament.com/en_GB/tournaments/3543821601845821440/matches/3603290114320777496/
+https://www.toornament.com/en_GB/tournaments/3543821601845821440/matches/3603290114354332214/ --- Completed 
+https://www.toornament.com/en_GB/tournaments/3543821601845821440/matches/3603290114320777496/ --- Not completed yet
+https://www.toornament.com/en_GB/tournaments/3543821601845821440/matches/3603290114387887185/ --- Forfeit
 '''
 
 import requests
@@ -22,7 +23,7 @@ import pprint
 pp = pprint.PrettyPrinter(indent=4)
 
 class Match():
-    def __init__(self,date, completed, group, tournamentRound, team1, team2, team1score, team2score, winner):
+    def __init__(self,date, completed, group, tournamentRound, team1, team2, team1score, team2score, winner, url):
         self.date = date
         self.completed = completed
         self.group = group
@@ -32,6 +33,7 @@ class Match():
         self.team1score = team1score
         self.team2score = team2score
         self.winner = winner
+        self.url = url
 
     def PrintMatch(self):
         print(self.date)
@@ -43,29 +45,10 @@ class Match():
         print(self.team1score)
         print(self.team2score)
         print(self.winner)
-
-
-def Main():
-    baseUrl = 'https://www.toornament.com'
-    groupPage = requests.get('https://www.toornament.com/en_GB/tournaments/3543821601845821440/stages/3603290113079263232/')
-    groupSoup = BeautifulSoup(groupPage.text, features="html.parser")
-
-    matchList = []
-    finalOutput = []
-
-    for x in range(16):
-        groupBlock = groupSoup.select("#main-container > div.layout-section.content > section > div > div:nth-child(2) > div > div:nth-child({})".format(x+1))
-        for tag in groupBlock:
-            matchList.extend(getGroupRounds(baseUrl + tag.find('a', href=True)['href'], baseUrl))
-    
-    for match in matchList:
-        try:
-            getMatchData(match).PrintMatch()
-        except:
-            print('todo')
+        print(self.url)
     
 
-def getGroupRounds(url, baseUrl):
+def GetGroupRounds(url, baseUrl):
     roundPage = requests.get(url)
     roundSoup = BeautifulSoup(roundPage.text, features='html.parser')
     roundList = []
@@ -96,7 +79,7 @@ def CalculateWinner(match, matchProperties):
     return match
 
 
-def getMatchData(url):
+def GetMatchData(url):
 
     matchPage = requests.get(url)
     matchSoup = BeautifulSoup(matchPage.text, features="html.parser")
@@ -104,27 +87,73 @@ def getMatchData(url):
     matchProperties = matchSoup.findAll('div', {'class': 'match format-info'})
 
     if matchProperties[0].findAll('div', {'class': 'value'})[1].text == 'completed':
-
-        match = Match(\
-            date=matchProperties[0].find('datetime-view')['value'],\
-            completed=True,\
-            group=matchProperties[0].findAll('div', {'class': 'value'})[5].text.strip(),\
-            tournamentRound=matchProperties[0].findAll('div', {'class': 'value'})[6].text.strip(),\
-            team1=matchProperties[1].findAll('div', {'class': 'name'})[1].text.strip(),\
-            team2=matchProperties[1].findAll('div', {'class': 'name'})[2].text.strip(),\
-            team1score='matchProperties[1]',\
-            team2score='matchProperties[1]',\
-            winner='null'\
-            )
-        
-        match = CalculateWinner(match, matchProperties[1])
+        if matchSoup.select('#main-container > div.layout-section.header > div > div.layout-block.header.mobile-hide.tablet-hide > div > div > div.state > div > div.result-1.forfeit.text'):
+            match = Match(\
+                date=matchProperties[0].find('datetime-view')['value'],\
+                completed=True,\
+                group=matchProperties[0].findAll('div', {'class': 'value'})[5].text.strip(),\
+                tournamentRound=matchProperties[0].findAll('div', {'class': 'value'})[6].text.strip(),\
+                team1=matchProperties[1].findAll('div', {'class': 'name'})[1].text.strip(),\
+                team2=matchProperties[1].findAll('div', {'class': 'name'})[2].text.strip(),\
+                team1score='FORFEIT',\
+                team2score='FORFEIT',\
+                winner='FORFEIT',\
+                url=url\
+                )#designate these as MISSING because they should be populated if status == completed
+            
+        else:        
+            match = Match(\
+                date=matchProperties[0].find('datetime-view')['value'],\
+                completed=True,\
+                group=matchProperties[0].findAll('div', {'class': 'value'})[5].text.strip(),\
+                tournamentRound=matchProperties[0].findAll('div', {'class': 'value'})[6].text.strip(),\
+                team1=matchProperties[1].findAll('div', {'class': 'name'})[1].text.strip(),\
+                team2=matchProperties[1].findAll('div', {'class': 'name'})[2].text.strip(),\
+                team1score='MISSING',\
+                team2score='MISSING',\
+                winner='MISSING',\
+                url=url\
+                )#designate these as MISSING because they should be populated if status == completed
+            
+            match = CalculateWinner(match, matchProperties[1])
 
     else: 
-        return 'TO DO'
+        match = Match(\
+            date=matchProperties[0].find('datetime-view')['value'],\
+            completed=False,\
+            group=matchProperties[0].findAll('div', {'class': 'value'})[4].text.strip(),\
+            tournamentRound=matchProperties[0].findAll('div', {'class': 'value'})[5].text.strip(),\
+            team1=matchProperties[1].findAll('div', {'class': 'name'})[1].text.strip(),\
+            team2=matchProperties[1].findAll('div', {'class': 'name'})[2].text.strip(),\
+            team1score='NULL',\
+            team2score='NULL',\
+            winner='NULL',\
+            url=url\
+            )#these are NULL because a match yet to happen has no winner...
 
     return match
 
+def Main():
+    baseUrl = 'https://www.toornament.com'
+    groupPage = requests.get('https://www.toornament.com/en_GB/tournaments/3543821601845821440/stages/3603290113079263232/')
+    groupSoup = BeautifulSoup(groupPage.text, features="html.parser")
+
+    matchList = []
+    finalOutput = []
+
+    for x in range(16):
+        groupBlock = groupSoup.select("#main-container > div.layout-section.content > section > div > div:nth-child(2) > div > div:nth-child({})".format(x+1))
+        for tag in groupBlock:
+            matchList.extend(GetGroupRounds(baseUrl + tag.find('a', href=True)['href'], baseUrl))
+    
+    print('Total Matches to be scraped: ' + str(len(matchList)))
+    for match in matchList:
+        try:
+            GetMatchData(match).PrintMatch()
+        except:
+            print('ERROR WITH MATCH - Contact Chorbadji at Leaguepedia API Discord')
+
 Main()
-
-
-
+#RTL for Arabic teams needed?
+#logging? number inserted (completed/forfeited/still to play)
+#need totally different script likely for knockout stage

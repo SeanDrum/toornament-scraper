@@ -1,2 +1,4 @@
 /.vscode
 /toornament-scrape
+/.idea
+**/__pycache__/*

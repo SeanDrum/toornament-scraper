@@ -1,3 +1,8 @@
+Install/upgrade:
+```
+pip install -U git+git://github.com/SeanDrum/toornament-scraper
+```
+
 Example links for three possible scenarios and their corresponding object outputs
 Entry into Leaguepedia can easily be done by modifying the end of Main() to do an API insert instead of print
 

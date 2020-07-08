@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import pprint
 from toornament_scraper.match import Match
+# from match import Match
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -107,15 +108,58 @@ class Parser(object):
                 matchList.extend(self.GetGroupRounds(tag.find('a', href=True)['href']))
         
         print('Total Matches to be scraped: ' + str(len(matchList)))
+        
+        returnList = []
+        
+        # returnList.append(self.GetMatchData(matchList[0]))
+        # return returnList
+        # matchList = ['https://www.toornament.com/en_GB/tournaments/3543821601845821440/matches/3603290114320777594/']
+        
+        round1List = []
+        round2List = []
+        round3List = []
+        round4List = []
+        round5List = []
+        round6List = []
+        round7List = []
+
+        
         for match in matchList:
             try:
-                self.GetMatchData(match).PrintMatch()
+                game = self.GetMatchData(match)
+                # game.PrintMatch()
+                if game.tournamentRound == "Round 1":
+                    round1List.append(game)
+                elif game.tournamentRound == "Round 2":
+                    round2List.append(game)
+                elif game.tournamentRound == "Round 3":
+                    round3List.append(game)
+                elif game.tournamentRound == "Round 4":
+                    round4List.append(game)
+                elif game.tournamentRound == "Round 5":
+                    round5List.append(game)
+                elif game.tournamentRound == "Round 6":
+                    round6List.append(game)
+                elif game.tournamentRound == "Round 7":
+                    round7List.append(game)
+                else: 
+                    print('round not found')
             except:
                 print('ERROR WITH MATCH - Contact Chorbadji at Leaguepedia API Discord')
+        
+
+        returnList = [round1List, round2List, round3List, round4List, round5List, round6List, round7List]
+
+        return returnList
 
 
 if __name__ == '__main__':
     Parser().run('https://www.toornament.com/en_GB/tournaments/3543821601845821440/stages/3603290113079263232/')
+
 # RTL for Arabic teams needed?
 # logging? number inserted (completed/forfeited/still to play)
 # need totally different script likely for knockout stage
+
+# url='https://www.toornament.com/en_GB/tournaments/3543821601845821440/matches/3603290114320777594/'
+# result = Parser().GetMatchData(url)
+# result.PrintMatch()

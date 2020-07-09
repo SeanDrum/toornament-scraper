@@ -1,5 +1,6 @@
 class Match(object):
-    def __init__(self, date=None, completed=None, team1=None, team2=None, team1score=None, team2score=None, winner=None):
+    def __init__(self, date=None, completed=None, team1=None, team2=None, team1score=None, team2score=None,
+                 winner=None):
         self.date = date
         self.completed = completed
         # self.group = group

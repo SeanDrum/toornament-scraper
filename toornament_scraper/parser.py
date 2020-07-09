@@ -47,7 +47,7 @@ class Parser(object):
                     matchListFinal.append(m)
 
                 except:  # every other row is going to have something worthwhile because of align-stretch divider
-                    pass
+                    matchListFinal.append(Match(completed=False))
 
         return matchListFinal
 

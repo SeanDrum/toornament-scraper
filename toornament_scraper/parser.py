@@ -5,8 +5,6 @@ from match import Match
 
 
 class Parser(object):
-    def __init__(self, baseUrl):
-        self.baseUrl = baseUrl
 
     def CalculateWinner(self, html, match):
         winner = html.findAll('div', {'class': 'name'})[0].text.strip()
@@ -22,10 +20,10 @@ class Parser(object):
 
         return match
 
-    def run(self):
+    def run(self, baseUrl):
 
         for page in range(1, 5):
-            getUrl = self.baseUrl + str(page)
+            getUrl = baseUrl + str(page)
 
             pageList = requests.get(getUrl)
             pageSoup = BeautifulSoup(pageList.text, features='html.parser')
@@ -55,4 +53,4 @@ class Parser(object):
 
 
 if __name__ == '__main__':
-    Parser('https://www.toornament.com/en_GB/tournaments/3543821601845821440/matches/schedule?page=').run()
+    Parser().run('https://www.toornament.com/en_GB/tournaments/3543821601845821440/matches/schedule?page=')

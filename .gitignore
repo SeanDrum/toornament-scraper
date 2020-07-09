@@ -2,3 +2,7 @@
 /toornament-scrape
 /.idea
 **/__pycache__/*
+password_bot.txt
+password_me.txt
+username_bot.txt
+username_me.txt

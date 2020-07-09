@@ -7,6 +7,9 @@ from toornament_scraper.match import Match
 
 class Parser(object):
     
+    def __init__(self, baseUrl):
+        self.baseUrl = baseUrl
+    
     def CalculateWinner(self, html, match):
         winner = html.findAll('div', {'class': 'name'})[0].text.strip()
         
@@ -21,11 +24,11 @@ class Parser(object):
         
         return match
     
-    def run(self, baseUrl):
+    def run(self):
         
         matchListFinal = []
         for page in range(1, 5):
-            getUrl = baseUrl + str(page)
+            getUrl = self.baseUrl + str(page)
             
             pageList = requests.get(getUrl)
             pageSoup = BeautifulSoup(pageList.text, features='html.parser')
@@ -58,4 +61,4 @@ class Parser(object):
 
 
 if __name__ == '__main__':
-    Parser().run('https://www.toornament.com/en_GB/tournaments/3543821601845821440/matches/schedule?page=')
+    Parser('https://www.toornament.com/en_GB/tournaments/3543821601845821440/matches/schedule?page=').run()

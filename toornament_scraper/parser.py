@@ -34,20 +34,23 @@ class Parser(object):
             matchListDiv = matchListRaw[0].findAll('div', {'class': 'size-content'})
 
             for match in matchListDiv:
+                new_match = None
                 try:
-                    m = Match( \
-                        date=matchListRaw[0].find('datetime-view')['value'], \
-                        completed=True, \
-                        team1=match.findAll('div', {'class': 'name'})[0].text.strip(), \
-                        team2=match.findAll('div', {'class': 'name'})[1].text.strip(), \
-                        team1score='TBD', \
-                        team2score='TBD', \
-                        winner='TBD')
+                    m = Match(
+                        date=matchListRaw[0].find('datetime-view')['value'],
+                        completed=True,
+                        team1=match.findAll('div', {'class': 'name'})[0].text.strip(),
+                        team2=match.findAll('div', {'class': 'name'})[1].text.strip(),
+                        team1score='TBD',
+                        team2score='TBD',
+                        winner='TBD'
+                    )
                     m = self.CalculateWinner(match.findAll('div', {'class': 'opponent win'})[0], m)
-                    matchListFinal.append(m)
+                    new_match = m
 
                 except:  # every other row is going to have something worthwhile because of align-stretch divider
-                    matchListFinal.append(Match(completed=False))
+                    new_match = Match(completed=False)
+                matchListFinal.append(new_match)
 
         return matchListFinal
 

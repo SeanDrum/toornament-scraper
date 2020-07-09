@@ -22,6 +22,7 @@ class Parser(object):
 
     def run(self, baseUrl):
 
+        matchListFinal = []
         for page in range(1, 5):
             getUrl = baseUrl + str(page)
 
@@ -31,7 +32,6 @@ class Parser(object):
 
             matchListRaw = pageSoup.findAll('div', {'class': 'grid-flex vertical spaceless'})
             matchListDiv = matchListRaw[0].findAll('div', {'class': 'size-content'})
-            matchListFinal = []
 
             for match in matchListDiv:
                 try:
@@ -49,7 +49,7 @@ class Parser(object):
                 except:  # every other row is going to have something worthwhile because of align-stretch divider
                     pass
 
-            return matchListFinal
+        return matchListFinal
 
 
 if __name__ == '__main__':

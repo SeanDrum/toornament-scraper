@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import pprint
-from match import Match
+from toornament_scraper.match import Match
 
 
 class Parser(object):

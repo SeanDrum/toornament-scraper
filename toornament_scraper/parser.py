@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import pprint
+import re
 from toornament_scraper.match import Match
 
 
@@ -31,7 +32,7 @@ class Parser(object):
             roundList = []
 
             matchListRaw = pageSoup.findAll('div', {'class': 'grid-flex vertical spaceless'})
-            matchListDiv = matchListRaw[0].findAll('div', {'class': 'size-content'})
+            matchListDiv = matchListRaw[0].findAll('div', {'class': re.compile(r'^size-content$')})
 
             for match in matchListDiv:
                 new_match = None
@@ -48,7 +49,7 @@ class Parser(object):
                     m = self.CalculateWinner(match.findAll('div', {'class': 'opponent win'})[0], m)
                     new_match = m
 
-                except:  # every other row is going to have something worthwhile because of align-stretch divider
+                except IndexError:
                     new_match = Match(completed=False)
                 matchListFinal.append(new_match)
 

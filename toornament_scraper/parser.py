@@ -43,7 +43,7 @@ class Parser(object):
                         team1score='TBD', \
                         team2score='TBD', \
                         winner='TBD')
-                    m = CalculateWinner(match.findAll('div', {'class': 'opponent win'})[0], m)
+                    m = self.CalculateWinner(match.findAll('div', {'class': 'opponent win'})[0], m)
                     matchListFinal.append(m)
 
                 except:  # every other row is going to have something worthwhile because of align-stretch divider

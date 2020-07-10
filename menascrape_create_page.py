@@ -3,6 +3,7 @@ from toornament_scraper.match import Match
 
 
 class MenaScraperCreatePage(object):
+       
     
     def run(self):
         matches = self.parser.run()
@@ -11,13 +12,13 @@ class MenaScraperCreatePage(object):
 
         day = 1
         previousDate = time_from_str('2020-01-01 18:00:00+00:00')#way before the tourney so it definitely fires the compare on first run
-        outF = open("myOutFile.txt", "w")
-        
+        outF = open("menascrape_created_page.txt", "w")
 
         for match in matchList:
             if match.date != previousDate:
                 day = day + 1
                 outF.write(sectionTemplate.format(str(day)))
+                outF.write('\n')
         
             outF.write(matchTemplate.format(\
                 team1 = match.team1,\
@@ -30,8 +31,10 @@ class MenaScraperCreatePage(object):
                 dst = match.date.dst,\
                 url = match.url,\
                 page = match.page))
-
+            
+            outF.write('\n')
             previousDate = match.date
+        
         outF.close()
 
 if __name__ == "__main__":

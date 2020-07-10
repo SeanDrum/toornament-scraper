@@ -41,7 +41,16 @@ class MenaScraper(object):
 					template.add('team1score', str(match.team1score))
 					template.add('team2score', str(match.team2score))
 					template.add('winner', str(match.winner))
+
+					if match.isForfeit == 'BOTH':
+						template.add('ff', 'both')
+					if match.isForfeit == '1':
+						template.add('ff', '1')
+					if match.isForfeit == '2':
+						template.add('ff', '2')
 					
+					template.add('direct_link',str(match.url))
+					template.add('page', str(match.page))
 					# TODO: remove these teams from being saved, this is temporary while debugging
 					template.add('team1', match.team1)
 					template.add('team2', match.team2)

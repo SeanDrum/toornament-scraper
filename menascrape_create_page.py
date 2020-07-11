@@ -21,8 +21,6 @@ class MenaScraperCreatePage(object):
         finalOutput = ''
         day = 0        
         previousDate = time_from_str('2020-01-01 18:00:00+00:00')#way before the tourney so it definitely fires the compare on first run
-        
-        debugCounter = 0
 
         for match in matchList:
             if match.date.cet_date != previousDate.cet_date:

@@ -27,9 +27,8 @@ class Parser(object):
         return match
     
     def run(self):
-        
         matchListFinal = []
-        for page in range(1, 2):
+        for page in range(1, 36):
             getUrl = self.baseUrl + str(page)
             
             pageList = requests.get(getUrl)
@@ -39,24 +38,17 @@ class Parser(object):
             matchListRaw = pageSoup.findAll('div', {'class': 'grid-flex vertical spaceless'})
             matchListDiv = matchListRaw[0].find_all(lambda tag: tag.name == 'div' and
                                                                 tag.get('class') == ['size-content'])
-            '''
-        roundGrid = roundSoup.findAll('div', {'class': 'grid-flex vertical spacing-large'})
-        for round in roundGrid:
-            for a in round.findAll('a', href=True):
-                if a.text:
-                    roundList.append(self.baseUrl + (a['href']))
 
-            '''
 
 
             for match in matchListDiv:
                 new_match = None
                 try:
                     m = Match(
-                        date=time_from_str(matchListRaw[0].find('datetime-view')['value']),
+                        date=time_from_str(match.find('datetime-view')['value']),
                         completed=True,
-                        team1=match.findAll('div', {'class': 'name'})[0].text.strip(),
-                        team2=match.findAll('div', {'class': 'name'})[1].text.strip(),
+                        team1='' if match.findAll('div', {'class': 'name'})[0].text.strip() == 'To be determined' else match.findAll('div', {'class': 'name'})[0].text.strip(),
+                        team2='' if match.findAll('div', {'class': 'name'})[1].text.strip() == 'To be determined' else match.findAll('div', {'class': 'name'})[1].text.strip(),
                         team1score='TBD',
                         team2score='TBD',
                         winner='TBD',

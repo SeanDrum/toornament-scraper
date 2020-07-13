@@ -17,7 +17,8 @@ class Parser(object):
         page_index = 1
         while True:
             response = requests.get(self.base_url + str(page_index))
-            if response.status_code == 404:
+            # emergency fallback at 1000 just in case?
+            if response.status_code == 404 or page_index > 1000:
                 break
 
             page_soup = BeautifulSoup(response.text, features='html.parser')

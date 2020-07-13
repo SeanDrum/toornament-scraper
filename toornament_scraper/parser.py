@@ -11,10 +11,16 @@ class Parser(object):
 
     def run(self):
         match_list_final = []
-        for page_index in range(1, 36):
-            page_list = requests.get(self.base_url + str(page_index))
-            page_soup = BeautifulSoup(page_list.text, features='html.parser')
 
+        # we don't know how many pages long the list of tournaments is
+        # so start at 1 and then go until we hit a 404
+        page_index = 1
+        while True:
+            response = requests.get(self.base_url + str(page_index))
+            if response.status_code == 404:
+                break
+
+            page_soup = BeautifulSoup(response.text, features='html.parser')
             match_list_raw = page_soup.findAll('div', {'class': 'grid-flex vertical spaceless'})
             match_list_div = match_list_raw[0].find_all(lambda tag: tag.name == 'div' and
                                                                     tag.get('class') == ['size-content'])
@@ -42,6 +48,8 @@ class Parser(object):
                     )
 
                 match_list_final.append(wiki_match)
+
+            page_index += 1
 
         return match_list_final
 

@@ -14,5 +14,5 @@ setuptools.setup(
     url="https://github.com/SeanDrum/toornament-scraper",
     packages=setuptools.find_packages(),
     python_requires='>=3.6',
-    install_requires=[]  # im lazy sorry
+    install_requires=['beautifulsoup4', 'mwparserfromhell']  # im lazy sorry
 )

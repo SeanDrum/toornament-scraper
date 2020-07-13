@@ -1,83 +1,63 @@
 import requests
 from bs4 import BeautifulSoup
-import pprint
-import re
-from toornament_scraper.match import Match
-from datetime import datetime
+from toornament_scraper.toornament_match import ToornamentMatch
 from river_mwclient.wiki_time_parser import time_from_str
 
 
 class Parser(object):
-    
-    def __init__(self, baseUrl):
-        self.baseUrl = baseUrl
-    
-    def CalculateWinner(self, html, match):
-        winner = html.findAll('div', {'class': 'name'})[0].text.strip()
-        
-        if winner == match.team1:
-            match.team1score = 1
-            match.team2score = 0
-            match.winner = 1
-        else:
-            match.team1score = 0
-            match.team2score = 1
-            match.winner = 2
-        
-        return match
-    
+
+    def __init__(self, base_url):
+        self.base_url = base_url
+
     def run(self):
-        matchListFinal = []
-        for page in range(1, 36):
-            getUrl = self.baseUrl + str(page)
-            
-            pageList = requests.get(getUrl)
-            pageSoup = BeautifulSoup(pageList.text, features='html.parser')
-            roundList = []
-            
-            matchListRaw = pageSoup.findAll('div', {'class': 'grid-flex vertical spaceless'})
-            matchListDiv = matchListRaw[0].find_all(lambda tag: tag.name == 'div' and
-                                                                tag.get('class') == ['size-content'])
+        match_list_final = []
 
+        # we don't know how many pages long the list of tournaments is
+        # so start at 1 and then go until we hit a 404
+        page_index = 1
+        while True:
+            response = requests.get(self.base_url + str(page_index))
+            # emergency fallback at 1000 just in case?
+            if response.status_code == 404 or page_index > 1000:
+                break
 
+            page_soup = BeautifulSoup(response.text, features='html.parser')
+            match_list_raw = page_soup.findAll('div', {'class': 'grid-flex vertical spaceless'})
+            match_list_div = match_list_raw[0].find_all(lambda tag: tag.name == 'div' and
+                                                                    tag.get('class') == ['size-content'])
 
-            for match in matchListDiv:
-                new_match = None
-                try:
-                    m = Match(
-                        date=time_from_str(match.find('datetime-view')['value']),
-                        completed=True,
-                        team1='' if match.findAll('div', {'class': 'name'})[0].text.strip() == 'To be determined' else match.findAll('div', {'class': 'name'})[0].text.strip(),
-                        team2='' if match.findAll('div', {'class': 'name'})[1].text.strip() == 'To be determined' else match.findAll('div', {'class': 'name'})[1].text.strip(),
-                        team1score='TBD',
-                        team2score='TBD',
-                        winner='TBD',
-                        url=match.findAll('a', href=True)[0]['href'],
-                        page=page
+            for html_match in match_list_div:
+                team1 = ''
+                if html_match.findAll('div', {'class': 'name'})[0].text.strip() != 'To be determined':
+                    team1 = html_match.findAll('div', {'class': 'name'})[0].text.strip()
+                team2 = ''
+                if html_match.findAll('div', {'class': 'name'})[1].text.strip() != 'To be determined':
+                    team2 = html_match.findAll('div', {'class': 'name'})[1].text.strip()
+
+                wiki_match = ToornamentMatch(
+                    timestamp=time_from_str(html_match.find('datetime-view')['value']),
+                    team1=team1,
+                    team2=team2,
+                    url=html_match.findAll('a', href=True)[0]['href'],
+                    page=page_index
+                )
+                if not html_match.findAll('div', {'class': 'opponent win'}):
+                    wiki_match.both_forfeit()
+                else:
+                    wiki_match.calculate_and_set_winner(
+                        html_match.findAll('div', {'class': 'opponent win'})[0]
                     )
-                    if not match.findAll('div', {'class': 'opponent win'}):
-                        m.team1score = 0
-                        m.team2score = 0
-                        m.winner = 0
-                        m.isForfeit = 'BOTH'
-                    else:
-                        m.isForfeit = 'NO'                                      
-                        m = self.CalculateWinner(match.findAll('div', {'class': 'opponent win'})[0], m) 
-                    
-                    new_match = m
-                
-                except IndexError:
-                    new_match = Match(completed=False)
-                
-                matchListFinal.append(new_match)
-        
-        return matchListFinal
+
+                match_list_final.append(wiki_match)
+
+            page_index += 1
+
+        return match_list_final
 
 
 if __name__ == '__main__':
     Parser('https://www.toornament.com/en_GB/tournaments/3543821601845821440/matches/schedule?page=').run()
 
-
-#example single ff
-#https://www.toornament.com/en_GB/tournaments/3543967453632937984/matches/schedule?page=1
-#https://www.toornament.com/en_GB/tournaments/3543967453632937984/matches/3603330036821811312/
+# example single ff
+# https://www.toornament.com/en_GB/tournaments/3543967453632937984/matches/schedule?page=1
+# https://www.toornament.com/en_GB/tournaments/3543967453632937984/matches/3603330036821811312/

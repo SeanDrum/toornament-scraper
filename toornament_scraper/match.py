@@ -45,11 +45,21 @@ class Match(object):
         self.add_field(template, 'team1score', self.team1score)
         self.add_field(template, 'team2score', self.team2score)
         if self.is_forfeit:
-            template.add('ff', str(self.forfeit))
+            template.add('ff', self.forfeit)
         self.add_field(template, 'winner', self.winner)
         self.add_field(template, 'direct_link', self.url)
         self.add_field(template, 'page', self.page)
         return str(template)
+
+    def merge_into(self, live_match: Template, overwrite_teams=False):
+        self.add_field(live_match, 'team1score', self.team1score)
+        self.add_field(live_match, 'team2score', self.team2score)
+        self.add_field(live_match, 'winner', self.winner)
+        if self.is_forfeit:
+            self.add_field(live_match, 'ff', self.forfeit)
+        if overwrite_teams:
+            self.add_field(live_match, 'team1', self.team1)
+            self.add_field(live_match, 'team2', self.team2)
 
     @staticmethod
     def add_field(template, field_name, field):

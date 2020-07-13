@@ -40,6 +40,7 @@ class MenaUpdater(object):
                     match.merge_into(template)
                 i += 1
         self.data_page.save(str(wikitext), summary=self.summary)
+        return 'https://lol.gamepedia.com/' + self.data_page.name.replace(' ', '_')
 
 
 if __name__ == "__main__":

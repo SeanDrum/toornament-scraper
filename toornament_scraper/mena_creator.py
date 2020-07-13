@@ -21,6 +21,7 @@ class MenaCreator(object):
 
         self.intro_template = Template(name="MatchSchedule/Start")
         self.intro_template.add('bestof', str(bestof))
+        self.sandbox_page = self.site.client.pages['User:RheingoldRiver/Toornament_Sandbox']
 
     def run(self):
         matches = self.parser.run()
@@ -34,7 +35,8 @@ class MenaCreator(object):
                 previousDate.cet_date = match.timestamp.cet_date
                 current_day_index += 1
             output_list.append(match.print())
-        self.site.client.pages["User:RheingoldRiver/Toornament Sandbox"].save('\n'.join(output_list))
+        self.site.client.pages[self.sandbox_page].save('\n'.join(output_list))
+        return 'https://lol.gamepedia.com/' + self.sandbox_page.name.replace(' ', '_')
 
 
 if __name__ == "__main__":

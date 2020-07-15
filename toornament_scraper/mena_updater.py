@@ -10,8 +10,7 @@ class MenaUpdater(object):
     def __init__(self, site: EsportsClient, title: str):
         self.site = site
         self.event = self.site.target(title).strip()
-        self.data_page = self.site.client.pages['Data:' + self.event]
-        self.overview_page = self.site.client.pages[self.event]
+        self.data_pages = self.site.data_pages(self.event)
         self.toornament = self.site.cargo_client.query_one_result(
             tables='Tournaments',
             where='OverviewPage="{}"'.format(self.event),
@@ -22,25 +21,28 @@ class MenaUpdater(object):
 
     def run(self):
         matches = self.parser.run()
-        text = self.data_page.text()
-        wikitext = mwparserfromhell.parse(text)
         i = 0
-        for template in wikitext.filter_templates():
-            template: Template
-            if template.name.matches('MatchSchedule'):
-                if i >= len(matches):
-                    break
-                match = matches[i]
-                match: Match
-                team1 = template.get('team1').value.strip()
-                team2 = template.get('team2').value.strip()
-                # TODO: some team validation? however remember there can be disambiguation
-                # TODO: so parse out anything in () when doing validation
-                if match.completed:
-                    match.merge_into(template)
-                i += 1
-        self.data_page.save(str(wikitext), summary=self.summary)
-        return 'https://lol.gamepedia.com/' + self.data_page.name.replace(' ', '_')
+        cur_page = None  # trailing index for printing at the end
+        for page in self.data_pages:
+            cur_page = page
+            text = page.text()
+            wikitext = mwparserfromhell.parse(text)
+            for template in wikitext.filter_templates():
+                template: Template
+                if template.name.matches('MatchSchedule'):
+                    if i >= len(matches):
+                        break
+                    match = matches[i]
+                    match: Match
+                    team1 = template.get('team1').value.strip()
+                    team2 = template.get('team2').value.strip()
+                    # TODO: some team validation? however remember there can be disambiguation
+                    # TODO: so parse out anything in () when doing validation
+                    if match.completed:
+                        match.merge_into(template)
+                    i += 1
+            page.save(str(wikitext), summary=self.summary)
+        return 'https://lol.gamepedia.com/' + cur_page.name.replace(' ', '_')
 
 
 if __name__ == "__main__":

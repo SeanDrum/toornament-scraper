@@ -34,9 +34,7 @@ class FFChecker(object):
                     continue
                 if not template.has('direct_link'):
                     continue
-                if not template.has('winner'):
-                    continue
-                if template.get('winner').value.strip() == '':
+                if not template.has('winner', ignore_empty=True):
                     continue
                 winner = int(template.get('winner').value.strip())
                 if not winner:

@@ -11,7 +11,7 @@ class FFChecker(object):
     def __init__(self, site: EsportsClient, title: str):
         self.site = site
         self.event = self.site.target(title).strip()
-        
+
         # data can be split across multiple pages so use generator here
         self.data_pages = self.site.data_pages(self.event)
         self.overview_page = self.site.client.pages[self.event]
@@ -35,6 +35,8 @@ class FFChecker(object):
                 if not template.has('direct_link'):
                     continue
                 if not template.has('winner'):
+                    continue
+                if template.get('winner').value.strip() == '':
                     continue
                 winner = int(template.get('winner').value.strip())
                 if not winner:

@@ -22,6 +22,8 @@ class MenaUpdater(object):
     def run(self):
         matches = self.parser.run()
         i = 0
+        match = matches[i]
+        match: Match
         cur_page = None  # trailing index for printing at the end
         for page in self.data_pages:
             cur_page = page
@@ -32,8 +34,17 @@ class MenaUpdater(object):
                 if template.name.matches('MatchSchedule'):
                     if i >= len(matches):
                         break
-                    match = matches[i]
-                    match: Match
+                    
+                    # allow for the possibility of partially updating an event
+                    # that starts in the latter half of a toornament scrape, e.g. playoffs
+                    # n.b. we can only do this if we added correct page and n_in_page tagging
+                    # when we first created the event
+                    if template.has('page', ignore_empty=True) and \
+                            template.has('n_in_page', ignore_empty=True):
+                        if int(template.get('page').value.strip()) < match.page:
+                            continue
+                        if int(template.get('n_in_page').value.strip()) < match.index_in_page:
+                            continue
                     team1 = template.get('team1').value.strip()
                     team2 = template.get('team2').value.strip()
                     # TODO: some team validation? however remember there can be disambiguation
@@ -41,6 +52,8 @@ class MenaUpdater(object):
                     if match.completed:
                         match.merge_into(template)
                     i += 1
+                    match = matches[i]
+                    match: Match
             page.save(str(wikitext), summary=self.summary)
         return 'https://lol.gamepedia.com/' + cur_page.name.replace(' ', '_')
 

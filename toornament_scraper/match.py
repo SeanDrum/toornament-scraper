@@ -17,7 +17,13 @@ class Match(object):
         self.forfeit = forfeit
         self.url = url
         self.page = page
-        self.index_in_page = index_in_page
+        
+        # let's 1-index index_in_page because page_index urls are indexed, as are MediaWiki/Lua
+        # also this index is *somewhat* user-facing, in that a user could attempt to add it themselves
+        # so we may as well try and be somewhat editor-friendly
+        # this is the only place the index is ever *set*, everywhere else we're comparing or reading it
+        # from here so this isn't going to cause any burden to us (let's hope lol)
+        self.index_in_page = index_in_page + 1
 
     def both_forfeit(self):
         self.is_forfeit = True

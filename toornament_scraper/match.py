@@ -3,9 +3,9 @@ from river_mwclient.wiki_time import WikiTime
 
 
 class Match(object):
-    def __init__(self, timestamp: WikiTime = None, completed: bool = False, team1=None, team2=None, team1score=None,
-                 team2score=None,
-                 winner=None, is_forfeit: bool = False, forfeit=None, url=None, page=None):
+    def __init__(self, timestamp: WikiTime = None, completed: bool = False, team1=None, team2=None,
+                 team1score=None,team2score=None, winner=None, is_forfeit: bool = False, forfeit=None,
+                 url=None, page=None, index_in_page=None):
         self.timestamp = timestamp
         self.completed = completed
         self.team1 = team1
@@ -17,6 +17,7 @@ class Match(object):
         self.forfeit = forfeit
         self.url = url
         self.page = page
+        self.index_in_page = index_in_page
 
     def both_forfeit(self):
         self.is_forfeit = True
@@ -49,6 +50,7 @@ class Match(object):
         self.add_field(template, 'winner', self.winner)
         self.add_field(template, 'direct_link', self.url)
         self.add_field(template, 'page', self.page)
+        self.add_field(template, 'n_in_page', self.index_in_page)
         return str(template)
 
     def merge_into(self, live_match: Template, overwrite_teams=False):

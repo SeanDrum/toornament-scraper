@@ -47,6 +47,7 @@ class MenaUpdater(object):
                             continue
                     team1 = template.get('team1').value.strip()
                     team2 = template.get('team2').value.strip()
+                    template.add('n_in_page_new', match.index_in_page)
                     # TODO: some team validation? however remember there can be disambiguation
                     # TODO: so parse out anything in () when doing validation
                     if match.completed:

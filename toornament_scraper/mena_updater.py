@@ -32,28 +32,31 @@ class MenaUpdater(object):
             for template in wikitext.filter_templates():
                 template: Template
                 if template.name.matches('MatchSchedule'):
-                    if i >= len(matches):
-                        break
-                    
                     # allow for the possibility of partially updating an event
                     # that starts in the latter half of a toornament scrape, e.g. playoffs
                     # n.b. we can only do this if we added correct page and n_in_page tagging
                     # when we first created the event
                     if template.has('page', ignore_empty=True) and \
                             template.has('n_in_page', ignore_empty=True):
-                        if int(template.get('page').value.strip()) < match.page:
-                            continue
-                        if int(template.get('n_in_page').value.strip()) < match.index_in_page:
-                            continue
+                        while match.page < int(template.get('page').value.strip()) \
+                                or match.index_in_page < int(template.get('n_in_page').value.strip()):
+                            i += 1
+                            if i >= len(matches):
+                                break
+                            match = matches[i]
                     team1 = template.get('team1').value.strip()
                     team2 = template.get('team2').value.strip()
                     # TODO: some team validation? however remember there can be disambiguation
                     # TODO: so parse out anything in () when doing validation
                     if match.completed:
                         match.merge_into(template)
+                    
+                    # do a normal increment here
+                    # this is necessary for legacy behavior in case the indices in_page etc aren't defined
                     i += 1
+                    if i >= len(matches):
+                        break
                     match = matches[i]
-                    match: Match
             page.save(str(wikitext), summary=self.summary)
         return 'https://lol.gamepedia.com/' + cur_page.name.replace(' ', '_')
 
@@ -61,5 +64,5 @@ class MenaUpdater(object):
 if __name__ == "__main__":
     credentials = AuthCredentials(user_file='me')
     site = EsportsClient('lol', credentials=credentials)  # Set wiki
-    scraper = MenaUpdater(site, 'Intel Arabian Cup 2020/Egypt/Split 1')
+    scraper = MenaUpdater(site, 'Intel Arabian Cup 2020/United Arab Emirates/Split 2')
     scraper.run()

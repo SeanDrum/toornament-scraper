@@ -57,7 +57,7 @@ class MenaUpdater(object):
                     if i >= len(matches):
                         break
                     match = matches[i]
-            page.save(str(wikitext), summary=self.summary)
+            self.site.save(page, str(wikitext), summary=self.summary)
         return 'https://lol.gamepedia.com/' + cur_page.name.replace(' ', '_')
 
 

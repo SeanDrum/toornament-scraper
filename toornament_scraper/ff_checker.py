@@ -49,5 +49,5 @@ class FFChecker(object):
                     elif winner == 2:
                         template.add('ff', '1', before='winner')
                 template.add('checked_ff', 'Yes')
-            page.save(str(wikitext), summary=self.summary)
+            self.site.save(page, str(wikitext), summary=self.summary)
             return 'https://lol.gamepedia.com/' + page.name.replace(' ', '_')
